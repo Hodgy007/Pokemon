@@ -12,6 +12,14 @@ import type { Listing } from "./types";
 
 const SCREENS: Screen[] = ["market", "collection", "trades", "admin"];
 
+/**
+ * The admin screen is in no menu; admins type /admin (or #/admin).
+ * Turn /admin into the hash route the rest of the app uses.
+ */
+if (window.location.pathname.replace(/\/+$/, "") === "/admin") {
+  window.history.replaceState(null, "", "/#/admin");
+}
+
 /** The screen lives in the URL hash (#/collection), so links and the back button work. */
 function useHashScreen() {
   const read = (): Screen => {
