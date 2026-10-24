@@ -2,6 +2,7 @@ import { useState } from "react";
 import { cardValue, findCard, getCard } from "../data/cards";
 import { REACH_THRESHOLD, acceptChance, bestOffer, type State } from "../state/store";
 import type { CardData, Listing, PokeType } from "../types";
+import { Hero } from "./Hero";
 import { CardThumb, EmptyState, Points, Tile, Toolbar, TraderBadge, type SortKey } from "./Tile";
 
 export type OpenCard = (cardId: string, origin: HTMLElement, listing?: Listing) => void;
@@ -43,12 +44,22 @@ export function Marketplace({ state, query, onOpen, onTrade }: MarketProps) {
   const inScope = rows.filter((r) => matches(r.card, type, query));
   const shown = bySort(tab === "reach" ? inScope.filter(reachable) : inScope, sort, (r) => r.card, (r) => r.best?.chance ?? 0);
   const reachableCount = rows.filter(reachable).length;
+  // The hero opens the front page; while searching, the results come first.
+  const showHero = !query.trim();
+  const Heading = showHero ? "h2" : "h1";
 
   return (
     <>
-      <div className="title-row">
+      {showHero && (
+        <Hero
+          listings={state.listings}
+          onOpen={onOpen}
+          onBrowse={() => document.getElementById("listings")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        />
+      )}
+      <div className="title-row" id="listings">
         <div>
-          <h1>Marketplace</h1>
+          <Heading>Marketplace</Heading>
           <p className="sub">
             {reachableCount} of {rows.length} listings are within reach: a card in your binder has at least a{" "}
             {pct(REACH_THRESHOLD)} chance of winning them.
