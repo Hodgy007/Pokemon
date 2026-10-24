@@ -890,6 +890,42 @@ button.thumb:hover { transform: scale(1.08); }
   pointer-events: none;
 }
 
+/* The battle clip fills the hero's right side, edge to edge, and fades into the panel behind the words. */
+.hero__showcase--film {
+  align-self: stretch;
+  align-content: end;
+  justify-items: start;
+  min-height: 460px;
+}
+
+.hero__film {
+  position: absolute;
+  z-index: -1;
+  top: -56px;
+  right: -56px;
+  bottom: -48px;
+  left: -40px;
+  width: calc(100% + 96px);
+  height: calc(100% + 104px);
+  object-fit: cover;
+  /* The clip is square: when cropped, keep the head and the flames. */
+  object-position: 50% 30%;
+  background: #0b0d18;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 32%);
+  mask-image: linear-gradient(to right, transparent, #000 32%);
+}
+
+/* The card the clip was made from, held up in front of it. */
+.hero__feature { width: 132px; transform: rotate(-6deg); }
+.hero__feature .card-wrap { animation: hero-float 4.5s ease-in-out infinite; }
+
+.hero__showcase--film .hero__caption {
+  padding: 6px 12px 6px 8px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.72);
+  color: var(--text);
+}
+
 .title-row h2 { font-size: var(--fs-title); line-height: 28px; font-weight: 600; letter-spacing: -0.01em; }
 #listings { scroll-margin-top: 88px; }
 
@@ -901,12 +937,27 @@ button.thumb:hover { transform: scale(1.08); }
   .hero { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 40px 32px 32px; }
   .hero__title { font-size: 48px; }
   .hero__stage { height: 340px; }
+  /* One column: the clip leads, above the words, and fades into them. */
+  .hero__showcase--film { order: -1; min-height: min(520px, 68vw); }
+  .hero__film {
+    top: -40px;
+    right: -32px;
+    bottom: 0;
+    left: -32px;
+    width: calc(100% + 64px);
+    height: calc(100% + 40px);
+    -webkit-mask-image: linear-gradient(to top, transparent, #000 30%);
+    mask-image: linear-gradient(to top, transparent, #000 30%);
+  }
 }
 
 @media (max-width: 640px) {
   .hero { margin-bottom: 40px; padding: 28px 20px 20px; border-radius: 20px; }
   .hero__title { font-size: 38px; }
   .hero__title span { display: inline; white-space: normal; }
+  .hero__showcase--film { min-height: 330px; }
+  .hero__film { top: -28px; right: -20px; left: -20px; width: calc(100% + 40px); height: calc(100% + 28px); }
+  .hero__feature { width: 124px; }
 }
 
 @media (max-width: 380px) {
