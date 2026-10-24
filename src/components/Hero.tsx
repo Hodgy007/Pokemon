@@ -22,8 +22,8 @@ interface Props {
  */
 const FILM = {
   cardId: "charizard",
-  src: "https://d2ol7oe51mr4n9.cloudfront.net/user_3DqgxjOWdfqGrLle4YXwDfkd7gi/c9ce9e36-0926-4e5d-bd4b-b665d275715f.mp4",
-  poster: "https://d2ol7oe51mr4n9.cloudfront.net/user_3DqgxjOWdfqGrLle4YXwDfkd7gi/1031b176-8431-449a-9ac2-2edf027c0d8b.jpg",
+  src: "https://d2ol7oe51mr4n9.cloudfront.net/user_3DqgxjOWdfqGrLle4YXwDfkd7gi/d2ba50d7-40c3-4b27-849c-3c0a56a5ab0a.mp4",
+  poster: "https://d2ol7oe51mr4n9.cloudfront.net/user_3DqgxjOWdfqGrLle4YXwDfkd7gi/d614db1d-0630-4bd4-a105-faf2d0cb97e5.jpg",
 };
 
 /** How long each featured card holds the front. */
