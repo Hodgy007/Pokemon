@@ -1,0 +1,13 @@
+node_modules
+dist
+*.tsbuildinfo
+.DS_Store
+
+# Local secrets (API keys)
+.env
+.env.*
+!.env.example
+!.env.production
+
+# Design-skill working files (screenshots, inspection reports)
+.taste-skill/
