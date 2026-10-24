@@ -57,9 +57,8 @@ interface ToolbarProps {
 export function Toolbar({ type, onType, sort, onSort, sorts, count }: ToolbarProps) {
   return (
     <div className="toolbar">
-      <label className="select">
-        <span className="sr-only">Type</span>
-        <select value={type} onChange={(e) => onType(e.target.value as PokeType | "all")}>
+      <span className="select">
+        <select aria-label="Type" value={type} onChange={(e) => onType(e.target.value as PokeType | "all")}>
           <option value="all">All types</option>
           {(Object.keys(TYPE_META) as PokeType[]).map((t) => (
             <option key={t} value={t}>
@@ -67,19 +66,18 @@ export function Toolbar({ type, onType, sort, onSort, sorts, count }: ToolbarPro
             </option>
           ))}
         </select>
-      </label>
+      </span>
       <span className="toolbar__spacer" />
       <span className="toolbar__count num">{count}</span>
-      <label className="select">
-        <span className="sr-only">Sort</span>
-        <select value={sort} onChange={(e) => onSort(e.target.value as SortKey)}>
+      <span className="select">
+        <select aria-label="Sort" value={sort} onChange={(e) => onSort(e.target.value as SortKey)}>
           {sorts.map((s) => (
             <option key={s.key} value={s.key}>
               {s.label}
             </option>
           ))}
         </select>
-      </label>
+      </span>
     </div>
   );
 }

@@ -50,6 +50,7 @@ export interface OwnedCard {
 }
 
 export interface Trader {
+  id: string;
   name: string;
   /** Hue (0–360) for the trader's initials, kept 60°+ apart from the others. */
   hue: number;

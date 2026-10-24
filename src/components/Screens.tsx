@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CARDS, cardValue, getCard } from "../data/cards";
+import { cardValue, findCard, getCard } from "../data/cards";
 import { REACH_THRESHOLD, acceptChance, bestOffer, type State } from "../state/store";
 import type { CardData, Listing, PokeType } from "../types";
 import { CardThumb, EmptyState, Points, Tile, Toolbar, TraderBadge, type SortKey } from "./Tile";
@@ -203,7 +203,11 @@ export function Collection({ state, query, onOpen }: CollectionProps) {
 
 export function TradeHistory({ state, onOpen }: { state: State; onOpen: OpenCard }) {
   const accepted = state.history.filter((h) => h.status === "accepted");
-  const gained = accepted.reduce((sum, h) => sum + cardValue(getCard(h.gotCardId)) - cardValue(getCard(h.gaveCardId)), 0);
+  const valueOf = (id: string) => {
+    const card = findCard(id);
+    return card ? cardValue(card) : 0;
+  };
+  const gained = accepted.reduce((sum, h) => sum + valueOf(h.gotCardId) - valueOf(h.gaveCardId), 0);
   const declined = state.history.length - accepted.length;
 
   return (
@@ -239,21 +243,18 @@ export function TradeHistory({ state, onOpen }: { state: State; onOpen: OpenCard
             </tr>
           ) : (
             state.history.map((h) => {
-              const gave = getCard(h.gaveCardId);
-              const got = getCard(h.gotCardId);
-              const change = cardValue(got) - cardValue(gave);
+              const gave = findCard(h.gaveCardId);
+              const got = findCard(h.gotCardId);
+              // A card an admin has since removed has no value to compare.
+              const change = gave && got ? cardValue(got) - cardValue(gave) : null;
               const ok = h.status === "accepted";
               return (
                 <tr key={h.id}>
-                  <td>
-                    <CardCell card={gave} onOpen={onOpen} />
-                  </td>
-                  <td>
-                    <CardCell card={got} onOpen={onOpen} />
-                  </td>
+                  <td>{gave ? <CardCell card={gave} onOpen={onOpen} /> : <span className="muted">Removed card</span>}</td>
+                  <td>{got ? <CardCell card={got} onOpen={onOpen} /> : <span className="muted">Removed card</span>}</td>
                   <td className="muted">{h.trader}</td>
-                  <td className={`num ${ok ? (change > 0 ? "positive" : change < 0 ? "negative" : "") : "muted"}`}>
-                    {ok ? <Points value={change} signed /> : "—"}
+                  <td className={`num ${ok && change !== null ? (change > 0 ? "positive" : change < 0 ? "negative" : "") : "muted"}`}>
+                    {ok && change !== null ? <Points value={change} signed /> : "—"}
                   </td>
                   <td>
                     <span className={`pill ${ok ? "pill--positive" : "pill--neutral"}`}>{ok ? "Accepted" : "Declined"}</span>
@@ -283,10 +284,4 @@ function formatWhen(at: number) {
   const today = new Date();
   const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   return d.toDateString() === today.toDateString() ? `Today ${time}` : d.toISOString().slice(0, 10);
-}
-
-/** Every catalogue card is either owned or listed; checked once in development. */
-export function assertCatalogue(state: State) {
-  const ids = [...state.collection.map((c) => c.cardId), ...state.listings.map((l) => l.card.cardId)];
-  console.assert(ids.length === CARDS.length, `Expected ${CARDS.length} cards in circulation, found ${ids.length}`);
 }

@@ -146,10 +146,19 @@ export const CARDS: CardData[] = [
   },
 ];
 
-const BY_ID = new Map(CARDS.map((c) => [c.id, c]));
+/** Cards the app knows about: the built-in set, replaced by the database's once it loads. */
+let byId = new Map(CARDS.map((c) => [c.id, c]));
+
+export function setKnownCards(cards: CardData[]) {
+  byId = new Map(cards.map((c) => [c.id, c]));
+}
+
+export function findCard(id: string): CardData | undefined {
+  return byId.get(id);
+}
 
 export function getCard(id: string): CardData {
-  const card = BY_ID.get(id);
+  const card = byId.get(id);
   if (!card) throw new Error(`Unknown card: ${id}`);
   return card;
 }
