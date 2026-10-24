@@ -785,8 +785,6 @@ button.thumb:hover { transform: scale(1.08); }
 
 /* ---------- admin ---------- */
 
-.sidebar .group-label { margin: 20px 8px 6px; color: var(--faint); font-size: var(--fs-small); }
-
 .title-row--split { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
 
 .tabs__status { margin-left: auto; align-self: center; color: var(--muted); font-size: 13px; }
@@ -933,7 +931,7 @@ select.input { cursor: pointer; }
     bottom: 0;
     z-index: 20;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     height: 64px;
     padding-bottom: env(safe-area-inset-bottom);
     background: var(--ground);

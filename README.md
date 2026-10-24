@@ -8,7 +8,7 @@ A Pokémon card trading site prototype with holographic cards and animated attac
 
 ## Admin screen and database
 
-The cards, traders and listings live in a Neon Postgres database (project **PokeTradeX**). Admins edit them at **`#/admin`** (the Admin item in the sidebar):
+The cards, traders and listings live in a Neon Postgres database (project **PokeTradeX**). Admins edit them at **`/admin`** (or `#/admin`). It is deliberately left out of the menus, so visitors never see it:
 
 - **Cards:** add, edit or delete cards. The editor shows a live preview of the card, and "Play its moves" runs the real attack animations before you save.
 - **Listings:** choose which trader lists which card.
@@ -16,7 +16,7 @@ The cards, traders and listings live in a Neon Postgres database (project **Poke
 
 Changes appear for every visitor straight away. Each visitor's binder and trade history stay in their own browser.
 
-**Becoming the admin.** Open `#/admin`, choose **Create account**, then **Make me the admin**. The first account to do this becomes the admin, and the button disappears for everyone after that. To add another admin later, run this in the Neon SQL editor with the person's user id from `neon_auth.user`:
+**Becoming the admin.** Open `/admin`, choose **Create account**, then **Make me the admin**. The first account to do this becomes the admin, and the button disappears for everyone after that. To add another admin later, run this in the Neon SQL editor with the person's user id from `neon_auth.user`:
 
 ```sql
 insert into public.admins (user_id) values ('<their user id>');

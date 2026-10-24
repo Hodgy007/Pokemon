@@ -20,12 +20,6 @@ const NAV: { id: Screen; label: string; icon: ReactNode }[] = [
   },
 ];
 
-const ADMIN = {
-  id: "admin" as const,
-  label: "Admin",
-  icon: <path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6zM9 12l2 2 4-4" />,
-};
-
 function NavIcon({ children }: { children: ReactNode }) {
   return (
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -65,11 +59,6 @@ export function Sidebar({ screen, onNavigate, onReset }: { screen: Screen; onNav
             {item.label}
           </button>
         ))}
-        <p className="group-label">Manage</p>
-        <button className="nav-item" aria-current={screen === ADMIN.id ? "page" : undefined} onClick={() => onNavigate(ADMIN.id)}>
-          <NavIcon>{ADMIN.icon}</NavIcon>
-          {ADMIN.label}
-        </button>
       </nav>
       <div className="sidebar__bottom">
         <button className="nav-item nav-item--quiet" onClick={onReset}>
@@ -86,7 +75,7 @@ export function Sidebar({ screen, onNavigate, onReset }: { screen: Screen; onNav
 export function BottomNav({ screen, onNavigate }: { screen: Screen; onNavigate: (s: Screen) => void }) {
   return (
     <nav className="bottom-nav" aria-label="Main">
-      {[...NAV, ADMIN].map((item) => (
+      {NAV.map((item) => (
         <button key={item.id} aria-current={screen === item.id ? "page" : undefined} onClick={() => onNavigate(item.id)}>
           <NavIcon>{item.icon}</NavIcon>
           <span>{item.label}</span>
