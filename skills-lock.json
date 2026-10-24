@@ -31,6 +31,36 @@
       "skillPath": "skills/taste-skill/SKILL.md",
       "computedHash": "69021ac7e671c0c0d85d65b570003cef360b1c296323fa28c042884e146478ca"
     },
+    "firecrawl-build": {
+      "source": "firecrawl/firecrawl",
+      "sourceType": "github",
+      "skillPath": "skills/firecrawl-build/SKILL.md",
+      "computedHash": "142300c4c9bba6cf78475b1a9cec8b8983398012fea8332bf51e9de842f06471"
+    },
+    "firecrawl-build-interact": {
+      "source": "firecrawl/firecrawl",
+      "sourceType": "github",
+      "skillPath": "skills/firecrawl-build-interact/SKILL.md",
+      "computedHash": "1826b289e3338a770113eccf9f148739cc26cc1ed7bcb1f74bd22b14ef71dc4f"
+    },
+    "firecrawl-build-onboarding": {
+      "source": "firecrawl/firecrawl",
+      "sourceType": "github",
+      "skillPath": "skills/firecrawl-build-onboarding/SKILL.md",
+      "computedHash": "5d41610a30bd446bce4c21356a6945f70279826cb4942cda125fa202872df45e"
+    },
+    "firecrawl-build-scrape": {
+      "source": "firecrawl/firecrawl",
+      "sourceType": "github",
+      "skillPath": "skills/firecrawl-build-scrape/SKILL.md",
+      "computedHash": "f6a632c906376f0e3883b7129d01031a6b87164ee2d9f735c184581ce221d939"
+    },
+    "firecrawl-build-search": {
+      "source": "firecrawl/firecrawl",
+      "sourceType": "github",
+      "skillPath": "skills/firecrawl-build-search/SKILL.md",
+      "computedHash": "d3f050efb3e3344489eab65ef66975164ba6b0e147cab854c59fe788ab7e7589"
+    },
     "slides": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
       "sourceType": "github",
