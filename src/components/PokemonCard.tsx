@@ -6,17 +6,20 @@ import { EnergyIcon } from "./EnergyIcon";
 
 interface Props {
   card: CardData;
-  onClick?: () => void;
-  /** Extra class on the outer wrapper, e.g. to trigger the attack lunge. */
+  /** "compact" for grids (name, HP and artwork); "full" adds the ability and moves. */
+  variant?: "compact" | "full";
+  /** Receives the card element, so a viewer can animate out of it. */
+  onClick?: (cardEl: HTMLElement) => void;
   className?: string;
 }
 
 /**
- * A card with a 3D tilt and holographic shine that follow the pointer.
+ * A trading card. It sits flat at rest; under the pointer it tilts in 3D, the
+ * artwork lifts off the card and holo rarities show foil across the artwork.
  * The forwarded ref points at the artwork, which is where attacks originate.
  */
 export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCard(
-  { card, onClick, className = "" },
+  { card, variant = "compact", onClick, className = "" },
   artRef,
 ) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -25,23 +28,22 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
 
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
     const el = cardRef.current;
-    if (!el) return;
+    if (!el || e.pointerType === "touch") return;
     const r = el.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width;
     const py = (e.clientY - r.top) / r.height;
-    el.style.setProperty("--rx", `${(0.5 - py) * 22}deg`);
-    el.style.setProperty("--ry", `${(px - 0.5) * 22}deg`);
+    el.style.setProperty("--rx", `${(0.5 - py) * 18}deg`);
+    el.style.setProperty("--ry", `${(px - 0.5) * 18}deg`);
     el.style.setProperty("--mx", `${px * 100}%`);
     el.style.setProperty("--my", `${py * 100}%`);
-    el.style.setProperty("--hover", "1");
+    el.style.setProperty("--px", `${(px - 0.5) * 2}`);
+    el.style.setProperty("--py", `${(py - 0.5) * 2}`);
   };
 
   const onPointerLeave = () => {
     const el = cardRef.current;
     if (!el) return;
-    el.style.setProperty("--rx", "0deg");
-    el.style.setProperty("--ry", "0deg");
-    el.style.setProperty("--hover", "0");
+    for (const v of ["--rx", "--ry", "--px", "--py"]) el.style.removeProperty(v);
   };
 
   const style = {
@@ -54,59 +56,60 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
     <div className={`card-wrap ${className}`} onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
       <div
         ref={cardRef}
-        className={`card rarity-${card.rarity}`}
+        data-ui
+        className={`card card--${variant} rarity-${card.rarity}`}
         style={style}
-        onClick={onClick}
+        onClick={onClick && ((e) => onClick(e.currentTarget))}
         role={onClick ? "button" : undefined}
         tabIndex={onClick ? 0 : undefined}
-        onKeyDown={(e) => onClick && (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onClick())}
+        onKeyDown={(e) => onClick && (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onClick(e.currentTarget))}
         aria-label={onClick ? `View ${card.name}` : undefined}
       >
-        <div className="card__inner">
+        <div className="card__face">
           <header className="card__header">
-            <span className="card__stage">{card.stage}</span>
             <span className="card__name">{card.name}</span>
             <span className="card__hp">
               <small>HP</small>
               {card.hp}
-              <EnergyIcon type={card.type} size="1.3em" />
             </span>
+            <EnergyIcon type={card.type} size="1.25em" />
           </header>
 
           <div className="card__art" ref={artRef}>
             {imgFailed ? (
-              <span className="card__art-fallback">{meta.symbol}</span>
+              <EnergyIcon type={card.type} size="40%" className="card__art-fallback" />
             ) : (
               <img src={artworkUrl(card)} alt={card.name} loading="lazy" draggable={false} onError={() => setImgFailed(true)} />
             )}
+            <div className="card__shine" aria-hidden="true" />
           </div>
 
-          <div className="card__body">
-            {card.ability && (
-              <div className="card__ability">
-                <span className="card__ability-tag">Ability</span> {card.ability.name}
-              </div>
-            )}
-            {card.attacks.map((atk) => (
-              <div className="card__attack" key={atk.name}>
-                <span className="card__cost">
-                  {atk.cost.map((t, i) => (
-                    <EnergyIcon key={i} type={t} />
-                  ))}
-                </span>
-                <span className="card__attack-name">{atk.name}</span>
-                <span className="card__damage">{atk.damage || ""}</span>
-              </div>
-            ))}
-          </div>
+          {variant === "full" && (
+            <div className="card__body">
+              {card.ability && (
+                <p className="card__ability">
+                  <span className="card__ability-tag">Ability</span> {card.ability.name}
+                </p>
+              )}
+              {card.attacks.map((atk) => (
+                <div className="card__attack" key={atk.name}>
+                  <span className="card__cost">
+                    {atk.cost.map((t, i) => (
+                      <EnergyIcon key={i} type={t} />
+                    ))}
+                  </span>
+                  <span className="card__attack-name">{atk.name}</span>
+                  <span className="card__damage">{atk.damage || ""}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           <footer className="card__footer">
-            <span>#{String(card.dex).padStart(3, "0")}</span>
-            <span title={RARITY_META[card.rarity].label}>{RARITY_META[card.rarity].symbol}</span>
+            <span>{card.stage}</span>
+            <span>{RARITY_META[card.rarity].label}</span>
           </footer>
         </div>
-        <div className="card__shine" />
-        <div className="card__glare" />
       </div>
     </div>
   );

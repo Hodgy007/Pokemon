@@ -398,3 +398,25 @@ export const EFFECTS: Record<EffectKind, EffectFactory> = {
     },
   }),
 };
+
+/** An accepted trade: two rings, a starburst in the trade's colours and a slow fall of sparkles. */
+export const CELEBRATE: EffectFactory = ({ origin: o, rect, color }) => ({
+  duration: 1.2,
+  frame(a) {
+    const colours = ["#ffffff", "#ffcb05", color];
+    if (a.at(0.02)) {
+      a.flash("#ffffff", 0.18);
+      ring(a, o, ["#ffffff", "#ffcb05"], 420, 0.6, 20);
+      burst(a, o, 60, [250, 700], () => ({
+        shape: "star", size: rand(7, 14), drag: 2.2, rot: rand(0, TAU), vr: rand(-6, 6), life: rand(0.7, 1.2), colors: [pick(colours), "#ffffff"],
+      }));
+    }
+    if (a.at(0.3)) ring(a, o, ["#ffffff", color], 320, 0.7, 12);
+    for (let i = a.rate(50); i > 0; i--) {
+      a.spawn({
+        x: rect.left + rand(0, rect.width), y: rect.top + rand(-20, rect.height * 0.3), vy: rand(30, 90),
+        life: rand(0.8, 1.4), size: rand(3, 7), grow: -3, rot: rand(0, TAU), colors: [pick(colours)], shape: "star",
+      });
+    }
+  },
+});

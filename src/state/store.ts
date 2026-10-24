@@ -13,14 +13,15 @@ export type Action =
   | { type: "tradeDeclined"; listingId: string; offeredUid: string }
   | { type: "reset" };
 
-const STORAGE_KEY = "poketrade:v1";
+// v2: traders carry a hue instead of an emoji avatar.
+const STORAGE_KEY = "poketrade:v2";
 
 export const TRADERS: Trader[] = [
-  { name: "EmberQueen", avatar: "🔥" },
-  { name: "TidalTrainer", avatar: "🌊" },
-  { name: "VoltVandal", avatar: "⚡" },
-  { name: "LeafLad", avatar: "🍃" },
-  { name: "PixiePal", avatar: "✨" },
+  { name: "EmberQueen", hue: 10 },
+  { name: "TidalTrainer", hue: 205 },
+  { name: "VoltVandal", hue: 75 },
+  { name: "LeafLad", hue: 140 },
+  { name: "PixiePal", hue: 300 },
 ];
 
 const STARTER_IDS = ["charmander", "squirtle", "bulbasaur", "pikachu", "eevee", "snorlax"];
@@ -106,4 +107,25 @@ export function useTradeStore() {
 export function acceptChance(offeredCardId: string, wantedCardId: string): number {
   const ratio = cardValue(getCard(offeredCardId)) / cardValue(getCard(wantedCardId));
   return Math.max(0, Math.min(1, (ratio - 0.6) / 0.4));
+}
+
+/** Offers at or above this chance count as "within reach". */
+export const REACH_THRESHOLD = 0.5;
+
+export interface BestOffer {
+  offered: OwnedCard;
+  chance: number;
+}
+
+/** The card in your collection most likely to win a listing, or null with an empty collection. */
+export function bestOffer(collection: OwnedCard[], wantedCardId: string): BestOffer | null {
+  let best: BestOffer | null = null;
+  for (const offered of collection) {
+    const chance = acceptChance(offered.cardId, wantedCardId);
+    // On a tie, give up the least valuable card.
+    if (!best || chance > best.chance || (chance === best.chance && cardValue(getCard(offered.cardId)) < cardValue(getCard(best.offered.cardId)))) {
+      best = { offered, chance };
+    }
+  }
+  return best;
 }

@@ -1,15 +1,26 @@
 import { TYPE_META } from "../data/typeMeta";
 import type { PokeType } from "../types";
 
-export function EnergyIcon({ type, size = "1em" }: { type: PokeType; size?: string }) {
+/** A TCG-style energy symbol: the type's glyph in white on a disc of its colour. */
+export function EnergyIcon({ type, size = "1em", className = "" }: { type: PokeType; size?: string; className?: string }) {
   const meta = TYPE_META[type];
   return (
-    <span
-      className="energy"
-      title={`${meta.label} Energy`}
-      style={{ width: size, height: size, background: `radial-gradient(circle at 35% 30%, ${meta.light}, ${meta.color} 60%, ${meta.dark})` }}
+    <svg
+      className={`energy ${className}`}
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      role="img"
+      aria-label={`${meta.label} Energy`}
     >
-      <span style={{ fontSize: `calc(${size} * 0.6)` }}>{meta.symbol}</span>
-    </span>
+      <circle cx="12" cy="12" r="12" fill={meta.color} />
+      <g transform="translate(4.2 4.2) scale(0.65)">
+        {meta.stroke ? (
+          <path d={meta.glyph} fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+        ) : (
+          <path d={meta.glyph} fill="#fff" fillRule="evenodd" />
+        )}
+      </g>
+    </svg>
   );
 }

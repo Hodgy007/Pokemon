@@ -1,47 +1,32 @@
-import { useCallback, useState } from "react";
-import { CardGrid, TypeFilter, type GridItem } from "./components/CardGrid";
+import { useCallback, useEffect, useState } from "react";
 import { CardViewer } from "./components/CardViewer";
+import { Collection, Marketplace, TradeHistory, assertCatalogue } from "./components/Screens";
+import { BottomNav, Sidebar, Topbar, type Screen } from "./components/Shell";
 import { TradeDialog } from "./components/TradeDialog";
 import { cardValue, getCard } from "./data/cards";
-import { useTradeStore } from "./state/store";
-import type { Listing, PokeType } from "./types";
+import { bestOffer, useTradeStore } from "./state/store";
+import type { Listing } from "./types";
 
-type Tab = "market" | "collection" | "history";
+interface Viewing {
+  cardId: string;
+  origin: HTMLElement | null;
+  listing?: Listing;
+}
 
 export default function App() {
   const [state, dispatch] = useTradeStore();
-  const [tab, setTab] = useState<Tab>("market");
-  const [typeFilter, setTypeFilter] = useState<PokeType | "all">("all");
-  const [viewing, setViewing] = useState<{ cardId: string; listing?: Listing } | null>(null);
+  const [screen, setScreen] = useState<Screen>("market");
+  const [query, setQuery] = useState("");
+  const [viewing, setViewing] = useState<Viewing | null>(null);
   const [trading, setTrading] = useState<Listing | null>(null);
 
-  const matches = (cardId: string) => typeFilter === "all" || getCard(cardId).type === typeFilter;
+  useEffect(() => {
+    if (import.meta.env.DEV) assertCatalogue(state);
+  }, [state]);
 
-  const marketItems: GridItem[] = state.listings
-    .filter((l) => matches(l.card.cardId))
-    .map((l) => ({
-      key: l.id,
-      card: getCard(l.card.cardId),
-      footer: (
-        <>
-          <span className="trader">
-            {l.trader.avatar} {l.trader.name}
-          </span>
-          <button className="btn btn--small btn--primary" onClick={() => setTrading(l)}>
-            Trade
-          </button>
-        </>
-      ),
-    }));
+  const binderValue = state.collection.reduce((sum, c) => sum + cardValue(getCard(c.cardId)), 0);
 
-  const collectionItems: GridItem[] = state.collection
-    .filter((c) => matches(c.cardId))
-    .map((c) => ({ key: c.uid, card: getCard(c.cardId) }))
-    .sort((a, b) => cardValue(b.card) - cardValue(a.card))
-    .map((item) => ({ ...item, footer: <span className="value-badge">{cardValue(item.card)} pts</span> }));
-
-  const collectionValue = state.collection.reduce((sum, c) => sum + cardValue(getCard(c.cardId)), 0);
-
+  const open = useCallback((cardId: string, origin: HTMLElement, listing?: Listing) => setViewing({ cardId, origin, listing }), []);
   const closeViewer = useCallback(() => setViewing(null), []);
   const closeTrade = useCallback(() => setTrading(null), []);
   const onTradeResult = useCallback(
@@ -52,84 +37,41 @@ export default function App() {
     [trading, dispatch],
   );
 
-  const viewingListing = viewing?.listing;
+  const navigate = (s: Screen) => {
+    setScreen(s);
+    window.scrollTo({ top: 0 });
+  };
+
+  const reset = () => {
+    if (confirm("Reset your binder, the marketplace and your trade history to the demo data?")) dispatch({ type: "reset" });
+  };
 
   return (
     <div className="app">
-      <header className="topbar">
-        <div className="brand">
-          <img src="/favicon.svg" alt="" width={32} height={32} />
-          <span>
-            Poké<b>Trade</b>
-          </span>
-        </div>
-        <nav className="tabs">
-          <button className={tab === "market" ? "is-active" : ""} onClick={() => setTab("market")}>
-            Marketplace <em>{state.listings.length}</em>
-          </button>
-          <button className={tab === "collection" ? "is-active" : ""} onClick={() => setTab("collection")}>
-            My Collection <em>{state.collection.length}</em>
-          </button>
-          <button className={tab === "history" ? "is-active" : ""} onClick={() => setTab("history")}>
-            Trades <em>{state.history.length}</em>
-          </button>
-        </nav>
-        <div className="wallet" title="Total trade value of your collection">
-          💎 {collectionValue} pts
-        </div>
-      </header>
+      <Sidebar screen={screen} onNavigate={navigate} onReset={reset} />
+      <Topbar query={query} onQuery={setQuery} cardCount={state.collection.length} binderValue={binderValue} />
 
-      <main>
-        {tab !== "history" && <TypeFilter value={typeFilter} onChange={setTypeFilter} />}
-
-        {tab === "market" && (
-          <CardGrid
-            items={marketItems}
-            empty="No cards of this type are listed right now."
-            onOpen={(item) => setViewing({ cardId: item.card.id, listing: state.listings.find((l) => l.id === item.key) })}
-          />
-        )}
-
-        {tab === "collection" && (
-          <CardGrid items={collectionItems} empty="No cards of this type yet. Visit the marketplace to trade for some!" onOpen={(item) => setViewing({ cardId: item.card.id })} />
-        )}
-
-        {tab === "history" && (
-          <section className="history">
-            {state.history.length === 0 ? (
-              <p className="empty">No trades yet. Find a card you like in the marketplace and make an offer.</p>
-            ) : (
-              <ul>
-                {state.history.map((h) => (
-                  <li key={h.id} className={`history__row is-${h.status}`}>
-                    <span className="history__status">{h.status === "accepted" ? "✅" : "❌"}</span>
-                    <span>
-                      Gave <b>{getCard(h.gaveCardId).name}</b> for <b>{getCard(h.gotCardId).name}</b> with {h.trader}
-                    </span>
-                    <time>{new Date(h.at).toLocaleString()}</time>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <button className="btn" onClick={() => confirm("Reset your collection and trade history?") && dispatch({ type: "reset" })}>
-              Reset demo data
-            </button>
-          </section>
-        )}
+      <main className="canvas">
+        {screen === "market" && <Marketplace state={state} query={query} onOpen={open} onTrade={setTrading} />}
+        {screen === "collection" && <Collection state={state} query={query} onOpen={open} />}
+        {screen === "trades" && <TradeHistory state={state} onOpen={open} />}
       </main>
+
+      <BottomNav screen={screen} onNavigate={navigate} />
 
       {viewing && (
         <CardViewer
+          key={viewing.cardId + (viewing.listing?.id ?? "")}
           card={getCard(viewing.cardId)}
+          origin={viewing.origin}
+          listing={viewing.listing}
+          best={viewing.listing ? bestOffer(state.collection, viewing.cardId) : null}
           onClose={closeViewer}
-          action={
-            viewingListing
-              ? {
-                  label: `Trade with ${viewingListing.trader.name}`,
-                  onClick: () => {
-                    setViewing(null);
-                    setTrading(viewingListing);
-                  },
+          onTrade={
+            viewing.listing
+              ? () => {
+                  setTrading(viewing.listing!);
+                  setViewing(null);
                 }
               : undefined
           }
